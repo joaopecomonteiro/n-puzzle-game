@@ -1,1 +1,5 @@
-# nPuzzle_IAcad
+# nPuzzle_IA
+
+
+Trabalho de Inteligência Artifical
+
