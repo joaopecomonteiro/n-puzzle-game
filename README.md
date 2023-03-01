@@ -1,1 +1,1 @@
-# nPuzzle_IA
+# nPuzzle_IAcad
