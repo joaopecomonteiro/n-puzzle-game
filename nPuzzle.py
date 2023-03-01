@@ -2,6 +2,8 @@ import numpy as np
 import math
 import copy 
 
+#teste
+
 n = 4
 
 def create_matrix(list):
