@@ -132,7 +132,23 @@ def BFS(current, goal):
             queue.append(depth_node+1)
     return "solution not found"
 
-
+def solvability(current):
+	inversions = 0
+	for i in range(len(current)):
+        inversions_temp = 0
+        for j in range(i+1, len(current)):
+        	if x[i] > x[j] and x[j]!=0:
+                inversions_temp += 1
+    	inversions += inversions_temp
+	for i in range(len(current)):
+    	if current[i] == 0  
+            if (i > -1 and i < 4) or (i > 8 and i < 13):
+        		if inversions % 2 != 0:
+            		return True
+    		else:
+        		if inversions % 2 == 0:
+            		return True
+	return False
 
 
 
