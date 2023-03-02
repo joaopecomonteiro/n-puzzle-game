@@ -111,15 +111,25 @@ def DFS(current, goal):
 def BFS(current, goal):
     queue = []
     queue.append(current)
+    queue.append(0)
     path = []
+
+
+
+
+
     while(len(queue) != 0):
         add = queue[0]
         node = queue.pop(0)
-        print(len(queue))
+        depth_node = queue.pop(0)
+        # print(node)
+        # print(depth_node)
         if(isGoal(node, goal)):
-            return node
+            return node, depth_node
         children = genChildren(node)
-        queue = queue + children
+        for child in children:
+            queue.append(child)
+            queue.append(depth_node+1)
     return "solution not found"
 
 
@@ -136,7 +146,10 @@ goal_list = list(map(int, input().split()))
 start_matrix = create_matrix(start_list)
 goal_matrix = create_matrix(goal_list)
 
+
 # print(aStar(start_matrix, goal_matrix))
-print(BFS(start_matrix, goal_matrix))
+resultado, depth = BFS(start_matrix, goal_matrix)
 # print(isGoal(start_matrix, goal_matrix))
 
+print(resultado)
+print(depth)
