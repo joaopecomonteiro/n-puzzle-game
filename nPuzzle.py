@@ -108,7 +108,7 @@ class node():
 
 
 
-def astar():
+def astar_manhattan():
     open_list = []
     closed_list = []
     # print(start.matrix)
@@ -189,7 +189,7 @@ get_input()
 
 
 
-print(astar())     
+print(astar_manhattan())     
 
 
 
