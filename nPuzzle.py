@@ -102,7 +102,7 @@ def DFS(current, goal):
             current = lst[0]
             lst.pop(0)
             if(isGoal(current, goal)):
-                return "econtrada"
+                return "solution found"
             children = genChildren(current)
             lst = children + lst
     return "solution not found"
@@ -112,18 +112,9 @@ def BFS(current, goal):
     queue = []
     queue.append(current)
     queue.append(0)
-    path = []
-
-
-
-
-
     while(len(queue) != 0):
-        add = queue[0]
         node = queue.pop(0)
         depth_node = queue.pop(0)
-        # print(node)
-        # print(depth_node)
         if(isGoal(node, goal)):
             return node, depth_node
         children = genChildren(node)
@@ -133,6 +124,32 @@ def BFS(current, goal):
     return "solution not found"
 
 
+def iterativeDfs(start, goal):
+    depth = 1
+    bottom_reached = False  
+    while not bottom_reached:
+        result, bottom_reached = iterativeDfsRec(start, goal, 0, depth)
+        if result is not None:
+            return result
+        depth += 1
+    return None
+
+
+def iterativeDfsRec(node, goal, current_depth, max_depth):
+    if isGoal(node, goal):
+        print("solution found")
+        print(current_depth)
+        return node, True
+    children = genChildren(node)
+    if current_depth == max_depth:
+        return None, False
+    bottom_reached = True
+    for child in children:
+        result, bottom_reached_rec = iterativeDfsRec(child, goal, current_depth + 1, max_depth)
+        if result is not None:
+            return result, True
+        bottom_reached = bottom_reached and bottom_reached_rec
+    return None, bottom_reached
 
 
 
@@ -148,8 +165,10 @@ goal_matrix = create_matrix(goal_list)
 
 
 # print(aStar(start_matrix, goal_matrix))
-resultado, depth = BFS(start_matrix, goal_matrix)
+# resultado, depth = BFS(start_matrix, goal_matrix)
 # print(isGoal(start_matrix, goal_matrix))
 
-print(resultado)
-print(depth)
+# print(resultado)
+# print(depth)
+
+print(iterativeDfs(start_matrix, goal_matrix))
