@@ -114,10 +114,10 @@ def BFS(current, goal):
     path = []
     while(len(queue) != 0):
         add = queue[0]
-        print(len(queue))
         node = queue.pop(0)
+        print(len(queue))
         if(isGoal(node, goal)):
-            return path
+            return node
         children = genChildren(node)
         queue = queue + children
     return "solution not found"
@@ -137,6 +137,6 @@ start_matrix = create_matrix(start_list)
 goal_matrix = create_matrix(goal_list)
 
 # print(aStar(start_matrix, goal_matrix))
-# print(BFS(start_matrix, goal_matrix)
-print(isGoal(start_matrix, goal_matrix))
+print(BFS(start_matrix, goal_matrix))
+# print(isGoal(start_matrix, goal_matrix))
 
