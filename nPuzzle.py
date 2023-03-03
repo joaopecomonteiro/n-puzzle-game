@@ -152,6 +152,91 @@ def astar_manhattan():
             open_list.append(child)
 
 
+def BFS():
+    queue = []
+    queue.append(start)
+    queue.append(0)
+    visited_nodes = []
+    while(len(queue) != 0):
+        node = queue.pop(0)
+        depth_node = queue.pop(0)
+        visited_nodes.append(node)
+        print("Nós já visitados:", len(visited_nodes),"Nós por visitar:", len(queue), "Profundidade do Nó a ser analisado:", depth_node)
+        if(node.isGoal()):
+            return node.matrix, depth_node
+        children = node.genChildren()
+        for child in children:
+            if(child not in visited_nodes):
+                queue.append(child)
+                queue.append(depth_node+1)
+                visited_nodes.append(child)
+
+
+def IDFS():
+    depth = 1
+    bottom_reached = False  
+    while not bottom_reached:
+        result, bottom_reached = IDFSRec(start, 0, depth)
+        if result is not None:
+            return result.matrix
+        depth += 1
+        print("Profundidade máxima:", depth)
+    return None
+
+
+def IDFSRec(node, current_depth, max_depth):
+    if node.isGoal():
+        print("Solucão encontrada")
+        print("Profundidade da solução:", current_depth)
+        return node, True
+    children = node.genChildren()
+    if current_depth == max_depth:
+        return None, False
+    bottom_reached = True
+    for child in children:
+        result, bottom_reached_rec = IDFSRec(child, current_depth + 1, max_depth)
+        if result is not None:
+            return result, True
+        bottom_reached = bottom_reached and bottom_reached_rec
+    return None, bottom_reached
+
+
+def DFSds():
+    stack = []
+    stack.insert(0, start)
+    while(len(stack) != 0):
+        # print(len(stack))
+        # print(stack)
+        for i in range(1):
+            current = stack.pop(0)
+            if(current.isGoal()):
+                return "Solução encontrada"
+            children = current.genChildren()
+            lst = children + lst
+    return "solution not found"
+
+
+def DFS():
+    stack = []
+    stack.insert(0, 0)
+    stack.insert(0, start)
+    visited_nodes = []
+    while(len(stack) != 0):
+        node = stack.pop(0)
+        depth_node = stack.pop(0)
+        visited_nodes.append(node)
+        print(node.matrix)
+        # print("Nós já visitados:", len(visited_nodes),"Nós por visitar:", len(stack), "Profundidade do Nó a ser analisado:", depth_node)
+        if(node.isGoal()):
+            return node.matrix, depth_node
+        children = node.genChildren()
+        for child in children:
+            if(child not in visited_nodes):
+                stack.insert(0, depth_node+1)
+                stack.insert(0, child)
+                visited_nodes.append(child)
+
+
 
 
 start = node()
@@ -172,7 +257,7 @@ def findGoal(num, goal):
                 return i, j
 
 
-# def reconstruct_path():
+
 
 
 
@@ -181,6 +266,11 @@ def findGoal(num, goal):
 
 
 get_input()
+
+
+
+
+
 # print(start.matrix)
 # print(start.isGoal())
 # print(start.findBlank())
@@ -189,8 +279,7 @@ get_input()
 
 
 
-print(astar_manhattan())     
-
+print(DFS())
 
 
 
