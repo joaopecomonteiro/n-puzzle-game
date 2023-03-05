@@ -1,6 +1,7 @@
 import numpy as np
 import copy 
 from timeit import default_timer as timer
+import tracemalloc
 
 n = 4
 
@@ -66,6 +67,7 @@ class node():
                 child.parent = self
                 # print(child.g)
                 child.manhattan()
+                child.misplaced()
                 # print(child.g)
                 ret.append(child)
             return ret
@@ -108,9 +110,15 @@ class node():
         self.mis = total
 
 
+    def visited(self, visited_list):
+        for node in visited_list:
+            if np.array_equal(self.matrix, node.matrix):
+                return True
+        return False
+
+
+
     def print_matrix(self):
-        # for i in range(n):
-        #     print(int(self.matrix[i][0]), int(self.matrix[i][1]), int(self.matrix[i][2]), int(self.matrix[i][3])) 
         for i in range(n):
             b = ""
             for j in range(n):
@@ -207,7 +215,6 @@ def astar_misplaced():
                 if(np.array_equal(child.matrix, closed_child.matrix)):
                     continue
             # print(child)
-            child.misplaced()
             for open_child in open_list:
                 if(np.array_equal(open_child.matrix, child.matrix) and child.mis > open_child.mis):
                     continue
@@ -296,6 +303,42 @@ def DFS():
                 visited_nodes.append(child)
 
 
+def greedy_manhattan():
+    path = []
+    visited_nodes = []
+    current = start
+    current.manhattan()
+    path.append(current)
+    visited_nodes.append(current)
+    while(1):
+        print("dawadawdwadawdawdawdaw")
+        print(current.matrix)
+        # for matrix in path:
+        #         matrix.print_matrix()
+        if(current.isGoal()):
+            return path
+        
+        children = current.genChildren()
+        best_child = node()
+        best_child.h = 99999
+        for child in children:
+            print(child.h)
+            if(child.visited(visited_nodes) == False):
+                if child.h < best_child.h:
+                    best_child = child
+                    # best_child.print_matrix()
+                # visited_nodes.append(child)
+            else:
+                print("ok")
+        if(best_child.parent is None):
+            current = current.parent
+        else:
+            current = best_child
+            visited_nodes.append(current)
+            path.append(current)
+        
+        
+
 
 
 start = node()
@@ -305,10 +348,10 @@ def get_input():
         global strategy, start_list, goal_list, start, goal, method
         start_list = list(map(int, input("Posição inicial: ").split()))
         goal_list = list(map(int, input("Posição final: ").split()))
-        start.create_matrix(start_list)
-        goal.create_matrix(goal_list)
-        method = input("Escolha uma destas estratégias de busca (DFS, BFS, IDFS, A*-misplaced, A*-Manhattan, Greedy-misplaced, Greedy-Manhattan): ")
-
+        if (len(start_list) == n**2) and (len(goal_list) == n**2):
+            start.create_matrix(start_list)
+            goal.create_matrix(goal_list)
+            method = input("Escolha uma destas estratégias de busca (DFS, BFS, IDFS, astar-misplaced, astar-manhattan, greedy-misplaced, greedy-manhattan): ")
 
 
 def findGoal(num, goal):
@@ -317,46 +360,59 @@ def findGoal(num, goal):
             if goal.matrix[i][j] == num:
                 return i, j
 
-
-
 get_input()
+valid = True
 
-if not solvability(start_list):
-    print("Configuraão inicial não leva à configuração final proposta")
+# visited_nodes = []
+# visited_nodes.append(start)
+# print(goal.visited(visited_nodes))
+
+
+
+
+
+
+
+
+if (len(start_list) != n**2) or (len(goal_list) != n**2):
+    print("As posições inseridas não são válidas")
 else:
-    path = []
-    if method == "DFS":
-        start_time = timer()
-        path = DFS()
-        end_time = timer()
-    elif method == "BFS":
-        start_time = timer()
-        path = BFS()
-        end_time = timer()
-    elif method == "IDSF":
-        start_time = timer()
-        path = IDFS()
-        end_time = timer()
-    elif method == "A*-misplaced":
-        start_time = timer()
-        path = astar_misplaced()
-        end_time = timer()
-    elif method == "A*-Manhattan":
-        start_time = timer()
-        path = astar_manhattan()
-        end_time = timer()
-    elif method == "Greedy-misplaced":
-        start_time = timer()
-        print(BFS())
-        end_time = timer()
-    elif method == "Greedy-misplaced":
-        start_time = timer()
-        print(BFS())
-        end_time = timer()
+    if not solvability(start_list):
+        print("Configuraão inicial não leva à configuração final proposta")
     else:
-        print("Por favor escolha uma estratégia de pesquisa válida")
-    for matrix in path:
-        matrix.print_matrix()
-    print(f"Profundidade: {len(path)-1}")
-    print(f"Tempo demorado: {round(end_time-start_time, 3)} segundos")
+        path = []
+        # tracemalloc.start()
+        start_time = timer()
+        if method == "DFS":
+            path = DFS()
+        elif method == "BFS":
+            path = BFS()
+        elif method == "IDSF":
+            path = IDFS()
+        elif method == "astar-misplaced":
+            path = astar_misplaced()
+        elif method == "astar-manhattan":
+            path = astar_manhattan()
+        elif method == "greedy-misplaced":
+            print(BFS())
+        elif method == "greedy-manhattan":
+            path = greedy_manhattan()
+        else:
+            valid = False
+            print("Por favor escolha uma estratégia de pesquisa válida")
+        if valid:
+            if path is not None:
+                for matrix in path:
+                    matrix.print_matrix()
+                print(f"Profundidade: {len(path)-1}")
+            end_time = timer()
+            print(f"Tempo demorado: {round(end_time-start_time, 3)} segundos")
+
+
+
+
+
+    #         inst_mem, max_mem = tracemalloc.get_traced_memory()
+    #         print(f"Máximo de memória usada: {max_mem} bytes")
+    # tracemalloc.stop()
 
