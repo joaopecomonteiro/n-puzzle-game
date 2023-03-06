@@ -130,16 +130,16 @@ class node():
 
 
 
-def solvability(start_list):
+def solvability_to_std(position_list):
     inversions = 0
-    for i in range(len(start_list)):
+    for i in range(len(position_list)):
         inversions_temp = 0
-        for j in range(i+1, len(start_list)):
-            if start_list[i] > start_list[j] and start_list[j]!=0:
+        for j in range(i+1, len(position_list)):
+            if position_list[i] > position_list[j] and position_list[j]!=0:
                 inversions_temp += 1
         inversions += inversions_temp
-    for i in range(len(start_list)):
-        if start_list[i] == 0:
+    for i in range(len(position_list)):
+        if position_list[i] == 0:
             if (i > -1 and i < 4) or (i > 8 and i < 13):
                 if inversions % 2 != 0:
                     return True
@@ -149,15 +149,17 @@ def solvability(start_list):
     return False
 
 
-
-
+def solvability(start_list, goal_list):
+    start_std = solvability_to_std(start_list)
+    goal_std = solvability_to_std(goal_list)
+    return start_std == goal_std
 
 
 def astar_manhattan():
     open_list = []
     closed_list = []
-    # print(start.matrix)
     open_list.append(start)
+    start_time_astar_manhattan = timer()
     while(len(open_list) > 0):
         current_node = open_list[0]
         current_index = 0
@@ -185,14 +187,18 @@ def astar_manhattan():
                 if(np.array_equal(open_child.matrix, child.matrix) and child.g > open_child.g):
                     continue
             open_list.append(child)
+        end_time_astar_manhattan = timer()
+        if(end_time_astar_manhattan-start_time_astar_manhattan > 60):
+            print("tempo limite excedido")
+            return None
 
 
 
 def astar_misplaced():
     open_list = []
     closed_list = []
-    # print(start.matrix)
     open_list.append(start)
+    start_time_astar_misplaced = timer()
     while(len(open_list) > 0):
         current_node = open_list[0]
         current_index = 0
@@ -214,11 +220,16 @@ def astar_misplaced():
             for closed_child in closed_list:
                 if(np.array_equal(child.matrix, closed_child.matrix)):
                     continue
-            # print(child)
             for open_child in open_list:
                 if(np.array_equal(open_child.matrix, child.matrix) and child.mis > open_child.mis):
                     continue
             open_list.append(child)
+        end_time_astar_misplaced = timer()
+        if(end_time_astar_misplaced-start_time_astar_misplaced > 60):
+            print("tempo limite excedido")
+            return None
+
+        
 
 
 def BFS():
@@ -226,11 +237,11 @@ def BFS():
     queue.append(start)
     queue.append(0)
     visited_nodes = []
+    start_time_BFS = timer()
     while(len(queue) != 0):
         node = queue.pop(0)
         depth_node = queue.pop(0)
         visited_nodes.append(node)
-        # print("Nós já visitados:", len(visited_nodes),"Nós por visitar:", len(queue), "Profundidade do Nó a ser analisado:", depth_node)
         if(node.isGoal()):
             path = []
             while(node != None):
@@ -243,17 +254,25 @@ def BFS():
                 queue.append(child)
                 queue.append(depth_node+1)
                 visited_nodes.append(child)
+        end_time_BFS = timer()
+        if(end_time_BFS-start_time_BFS > 60):
+            print("tempo limite excedido")
+            return None
 
 
 def IDFS():
     depth = 1
-    bottom_reached = False  
+    bottom_reached = False 
+    start_time_IDFS = timer()
     while not bottom_reached:
         path, bottom_reached = IDFSRec(start, 0, depth)
         if path is not None:
             return path
         depth += 1
-        # print("Profundidade máxima:", depth)
+        end_time_IDFS = timer()
+        if(end_time_IDFS-start_time_IDFS > 60):
+            print("tempo limite excedido")
+            return None
     return None
 
 
@@ -283,12 +302,11 @@ def DFS():
     stack.insert(0, 0)
     stack.insert(0, start)
     visited_nodes = []
+    start_time_DFS = timer()
     while(len(stack) != 0):
         node = stack.pop(0)
         depth_node = stack.pop(0)
         visited_nodes.append(node)
-        print(node.matrix)
-        # print("Nós já visitados:", len(visited_nodes),"Nós por visitar:", len(stack), "Profundidade do Nó a ser analisado:", depth_node)
         if(node.isGoal()):
             path = []
             while(node != None):
@@ -301,6 +319,12 @@ def DFS():
                 stack.insert(0, depth_node+1)
                 stack.insert(0, child)
                 visited_nodes.append(child)
+        end_time_DFS = timer()
+        if(end_time_DFS-start_time_DFS > 60):
+            print("tempo limite excedido")
+            return None
+
+
 
 
 def greedy_manhattan():
@@ -310,33 +334,57 @@ def greedy_manhattan():
     current.manhattan()
     path.append(current)
     visited_nodes.append(current)
+    start_time_greedy_manhattan = timer()
     while(1):
-        print("dawadawdwadawdawdawdaw")
-        print(current.matrix)
-        # for matrix in path:
-        #         matrix.print_matrix()
         if(current.isGoal()):
             return path
-        
         children = current.genChildren()
         best_child = node()
         best_child.h = 99999
         for child in children:
-            print(child.h)
             if(child.visited(visited_nodes) == False):
                 if child.h < best_child.h:
                     best_child = child
-                    # best_child.print_matrix()
-                # visited_nodes.append(child)
-            else:
-                print("ok")
         if(best_child.parent is None):
             current = current.parent
         else:
             current = best_child
             visited_nodes.append(current)
             path.append(current)
+        end_time_greedy_manhattan = timer()
+        if(end_time_greedy_manhattan-start_time_greedy_manhattan > 60):
+            print("tempo limite excedido")
+            return None
         
+def greedy_misplaced():
+    path = []
+    visited_nodes = []
+    current = start
+    current.misplaced()
+    path.append(current)
+    visited_nodes.append(current)
+    start_time_greedy_misplaced = timer()
+    while(1):
+        # print(current.matrix)
+        if(current.isGoal()):
+            return path
+        children = current.genChildren()
+        best_child = node()
+        best_child.mis = 99999
+        for child in children:
+            if(child.visited(visited_nodes) == False):
+                if child.mis < best_child.mis:
+                    best_child = child
+        if(best_child.parent is None):
+            current = current.parent
+        else:
+            current = best_child
+            visited_nodes.append(current)
+            path.append(current) 
+        end_time_greedy_misplaced = timer()
+        if(end_time_greedy_misplaced-start_time_greedy_misplaced > 60):
+            print("tempo limite excedido")
+            return None       
         
 
 
@@ -377,8 +425,8 @@ valid = True
 if (len(start_list) != n**2) or (len(goal_list) != n**2):
     print("As posições inseridas não são válidas")
 else:
-    if not solvability(start_list):
-        print("Configuraão inicial não leva à configuração final proposta")
+    if not solvability(start_list, goal_list):
+        print("Configuração inicial não leva à configuração final proposta")
     else:
         path = []
         # tracemalloc.start()
@@ -387,14 +435,14 @@ else:
             path = DFS()
         elif method == "BFS":
             path = BFS()
-        elif method == "IDSF":
+        elif method == "IDFS":
             path = IDFS()
         elif method == "astar-misplaced":
             path = astar_misplaced()
         elif method == "astar-manhattan":
             path = astar_manhattan()
         elif method == "greedy-misplaced":
-            print(BFS())
+            path = greedy_misplaced()
         elif method == "greedy-manhattan":
             path = greedy_manhattan()
         else:
@@ -407,11 +455,6 @@ else:
                 print(f"Profundidade: {len(path)-1}")
             end_time = timer()
             print(f"Tempo demorado: {round(end_time-start_time, 3)} segundos")
-
-
-
-
-
     #         inst_mem, max_mem = tracemalloc.get_traced_memory()
     #         print(f"Máximo de memória usada: {max_mem} bytes")
     # tracemalloc.stop()
