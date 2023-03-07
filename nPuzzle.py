@@ -6,13 +6,15 @@ import tracemalloc
 n = 4
 
 class node():
-    def __init__(self, pieces_list = [], matrix = [], parent = None, f=0, g=0, h=0, mis=0):
+    def __init__(self, pieces_list = [], matrix = [], parent = None, f=0, g=0, h=0, mis=0, f_mis=0, g_mis=0):
         self.pieces_list = pieces_list
         self.matrix = matrix
         self.f = f
         self.g = g
         self.h = h
         self.mis = mis
+        self.g_mis = g_mis
+        self.f_mis = f_mis
         self.parent = parent
 
     def create_matrix(self, list):
@@ -107,7 +109,14 @@ class node():
             for j in range(n):
                 if (self.matrix[i][j] != 0) and (self.matrix[i][j] != goal.matrix[i][j]):
                     total += 1
-        self.mis = total
+        if np.array_equal(self.matrix, start.matrix):
+            self.mis = total
+            self.g_mis = 0
+            self.f_mis = total
+        else:
+            self.mis = total
+            self.g_mis = self.parent.g_mis +1
+            self.f_mis = self.g_mis + total
 
 
     def visited(self, visited_list):
@@ -117,7 +126,6 @@ class node():
         return False
 
 
-
     def print_matrix(self):
         for i in range(n):
             b = ""
@@ -125,7 +133,6 @@ class node():
                 b += str(int(self.matrix[i][j])) + '\t'
             print(b)
         print("---------------------------")
-
 
 
 
@@ -163,6 +170,7 @@ def astar_manhattan():
     while(len(open_list) > 0):
         current_node = open_list[0]
         current_index = 0
+        print(current_node.matrix)
         for index, item in enumerate(open_list):
             if item.f < current_node.f:
                 current_node = item
@@ -202,8 +210,9 @@ def astar_misplaced():
     while(len(open_list) > 0):
         current_node = open_list[0]
         current_index = 0
+        # print(current_node.matrix)
         for index, item in enumerate(open_list):
-            if item.f < current_node.f:
+            if item.f_mis < current_node.f_mis:
                 current_node = item
                 current_index = index
         open_list.pop(current_index)
@@ -221,8 +230,9 @@ def astar_misplaced():
                 if(np.array_equal(child.matrix, closed_child.matrix)):
                     continue
             for open_child in open_list:
-                if(np.array_equal(open_child.matrix, child.matrix) and child.mis > open_child.mis):
+                if(np.array_equal(open_child.matrix, child.matrix) and child.g_mis > open_child.g_mis):
                     continue
+            print(child.matrix)
             open_list.append(child)
         end_time_astar_misplaced = timer()
         if(end_time_astar_misplaced-start_time_astar_misplaced > 60):
