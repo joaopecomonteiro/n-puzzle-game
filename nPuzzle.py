@@ -162,6 +162,9 @@ def solvability(start_list, goal_list):
     return start_std == goal_std
 
 
+time_limit = 300
+
+
 def astar_manhattan():
     open_list = []
     closed_list = []
@@ -170,7 +173,7 @@ def astar_manhattan():
     while(len(open_list) > 0):
         current_node = open_list[0]
         current_index = 0
-        print(current_node.matrix)
+        # print(current_node.matrix)
         for index, item in enumerate(open_list):
             if item.f < current_node.f:
                 current_node = item
@@ -196,8 +199,8 @@ def astar_manhattan():
                     continue
             open_list.append(child)
         end_time_astar_manhattan = timer()
-        if(end_time_astar_manhattan-start_time_astar_manhattan > 60):
-            print("tempo limite excedido")
+        if(end_time_astar_manhattan-start_time_astar_manhattan > time_limit):
+            # print("tempo limite excedido")
             return None
 
 
@@ -232,11 +235,11 @@ def astar_misplaced():
             for open_child in open_list:
                 if(np.array_equal(open_child.matrix, child.matrix) and child.g_mis > open_child.g_mis):
                     continue
-            print(child.matrix)
+            # print(child.matrix)
             open_list.append(child)
         end_time_astar_misplaced = timer()
-        if(end_time_astar_misplaced-start_time_astar_misplaced > 60):
-            print("tempo limite excedido")
+        if(end_time_astar_misplaced-start_time_astar_misplaced > time_limit):
+            # print("tempo limite excedido")
             return None
 
         
@@ -265,31 +268,32 @@ def BFS():
                 queue.append(depth_node+1)
                 visited_nodes.append(child)
         end_time_BFS = timer()
-        if(end_time_BFS-start_time_BFS > 60):
-            print("tempo limite excedido")
+        if(end_time_BFS-start_time_BFS > time_limit):
+            # print("tempo limite excedido")
             return None
 
 
 def IDFS():
     depth = 1
     bottom_reached = False 
-    start_time_IDFS = timer()
+    global start_time_IDFS
+    start_time_IDFS = timer() 
     while not bottom_reached:
         path, bottom_reached = IDFSRec(start, 0, depth)
         if path is not None:
             return path
         depth += 1
-        end_time_IDFS = timer()
-        if(end_time_IDFS-start_time_IDFS > 60):
-            print("tempo limite excedido")
-            return None
     return None
 
 
 def IDFSRec(node, current_depth, max_depth):
+    end_time_IDFS = timer()
+    if(end_time_IDFS-start_time_IDFS > time_limit):
+        # print("tempo limite excedido")
+        return None, True
     if node.isGoal():
-        print("Solucão encontrada")
-        print("Profundidade da solução:", current_depth)
+        # print("Solucão encontrada")
+        # print("Profundidade da solução:", current_depth)
         path = []
         while(node != None):
             path.insert(0, node)
@@ -330,8 +334,8 @@ def DFS():
                 stack.insert(0, child)
                 visited_nodes.append(child)
         end_time_DFS = timer()
-        if(end_time_DFS-start_time_DFS > 60):
-            print("tempo limite excedido")
+        if(end_time_DFS-start_time_DFS > time_limit):
+            # print("tempo limite excedido")
             return None
 
 
@@ -362,8 +366,8 @@ def greedy_manhattan():
             visited_nodes.append(current)
             path.append(current)
         end_time_greedy_manhattan = timer()
-        if(end_time_greedy_manhattan-start_time_greedy_manhattan > 60):
-            print("tempo limite excedido")
+        if(end_time_greedy_manhattan-start_time_greedy_manhattan > time_limit):
+            # print("tempo limite excedido")
             return None
         
 def greedy_misplaced():
@@ -392,8 +396,8 @@ def greedy_misplaced():
             visited_nodes.append(current)
             path.append(current) 
         end_time_greedy_misplaced = timer()
-        if(end_time_greedy_misplaced-start_time_greedy_misplaced > 60):
-            print("tempo limite excedido")
+        if(end_time_greedy_misplaced-start_time_greedy_misplaced > time_limit):
+            # print("tempo limite excedido")
             return None       
         
 
@@ -439,7 +443,7 @@ else:
         print("Configuração inicial não leva à configuração final proposta")
     else:
         path = []
-        # tracemalloc.start()
+        tracemalloc.start()
         start_time = timer()
         if method == "DFS":
             path = DFS()
@@ -463,9 +467,11 @@ else:
                 for matrix in path:
                     matrix.print_matrix()
                 print(f"Profundidade: {len(path)-1}")
-            end_time = timer()
-            print(f"Tempo demorado: {round(end_time-start_time, 3)} segundos")
-    #         inst_mem, max_mem = tracemalloc.get_traced_memory()
-    #         print(f"Máximo de memória usada: {max_mem} bytes")
-    # tracemalloc.stop()
+                end_time = timer()
+                print(f"Tempo demorado: {round(end_time-start_time, 3)} segundos")
+            else:
+                print("tempo limite excedido")
+            inst_mem, max_mem = tracemalloc.get_traced_memory()
+            print(f"Máximo de memória usada: {max_mem} bytes")
+    tracemalloc.stop()
 
