@@ -5,7 +5,8 @@ import tracemalloc
 
 n = 4
 
-class node():
+#Classe dos nós
+class node(): 
     def __init__(self, pieces_list = [], matrix = [], parent = None, f=0, g=0, h=0, mis=0, f_mis=0, g_mis=0):
         self.pieces_list = pieces_list
         self.matrix = matrix
@@ -17,68 +18,67 @@ class node():
         self.f_mis = f_mis
         self.parent = parent
 
-    def create_matrix(self, list):
+#Função para criar a matrix
+    def create_matrix(self, list): 
         self.matrix = np.zeros((n,n))
         index = 0
         for i in range(4):
             for j in range(4):
                 self.matrix[i][j] = list[index]
                 index += 1
-        # print(self.matrix)
 
 
-    def isGoal(self):
-        # print(self.matrix)
+#Função para verificar se a posição é final
+    def isGoal(self): 
         return np.array_equal(self.matrix, goal.matrix)
     
 
-    def findBlank(self):
+#Função para procurar o espaço vazio
+    def findBlank(self): 
         for i in range(n):
                 for j in range(n):
                     if self.matrix[i][j] == 0:
                         return i, j
 
 
-    def genChildren(self):
+#Função para gerar os filhos de uma posição
+    def genChildren(self): 
             x, y = self.findBlank()
             newMatrices = []
-            if (x + 1) < n: #moving blank down / moving a tile up
+            if (x + 1) < n: 
                 new = copy.deepcopy(self.matrix)
                 new[x][y] = new[x+1][y]
                 new[x+1][y] = 0
                 newMatrices.append(new)
-            if (y + 1) < n:  # moving blank right / moving a tile left
+            if (y + 1) < n:  
                 new = copy.deepcopy(self.matrix)
                 new[x][y]=new[x][y+1]
                 new[x][y+1]= 0
                 newMatrices.append(new)
-            if (x - 1) > -1: #moving blank up / moving a tile down
+            if (x - 1) > -1:
                 new = copy.deepcopy(self.matrix)
                 new[x][y] = new[x-1][y]
                 new[x-1][y] = 0
                 newMatrices.append(new)
-            if (y - 1) > -1: # moving blank left / moving a tile right
+            if (y - 1) > -1: 
                 new = copy.deepcopy(self.matrix)
                 new[x][y] = new[x][y - 1]
                 new[x][y-1] = 0
                 newMatrices.append(new)
             ret = []
-            for matrix in newMatrices: #create children nodes
+            for matrix in newMatrices:
                 child = node()
                 child.matrix = matrix
                 child.parent = self
-                # print(child.g)
                 child.manhattan()
                 child.misplaced()
-                # print(child.g)
                 ret.append(child)
             return ret
 
 
-    def manhattan(self):
-        # print("dakjdwadwkj")
+#Função para calcular a distância de manhattan total de uma posição
+    def manhattan(self): 
         sum = 0
-        # print(self.matrix)
         if np.array_equal(self.matrix, start.matrix):
             for i in range(n):
                 for j in range(n):
@@ -103,7 +103,8 @@ class node():
             self.f = self.g + sum
 
 
-    def misplaced(self):
+#Função para calcular o número de peças fora do lugar de uma posição
+    def misplaced(self): 
         total = 0
         for i in range(n):
             for j in range(n):
@@ -119,14 +120,16 @@ class node():
             self.f_mis = self.g_mis + total
 
 
-    def visited(self, visited_list):
+#Função para verificar se um nó pertence à lista de nós visitados
+    def visited(self, visited_list): 
         for node in visited_list:
             if np.array_equal(self.matrix, node.matrix):
                 return True
         return False
 
 
-    def print_matrix(self):
+#Função para imprimir uma posição
+    def print_matrix(self): 
         for i in range(n):
             b = ""
             for j in range(n):
@@ -135,9 +138,8 @@ class node():
         print("---------------------------")
 
 
-
-
-def solvability_to_std(position_list):
+#Função para ver se uma posição chega a solução "standart"
+def solvability_to_std(position_list): 
     inversions = 0
     for i in range(len(position_list)):
         inversions_temp = 0
@@ -156,16 +158,19 @@ def solvability_to_std(position_list):
     return False
 
 
-def solvability(start_list, goal_list):
+#Função para verificar se é possível chegar a posição final a partir da inicial 
+def solvability(start_list, goal_list): 
     start_std = solvability_to_std(start_list)
     goal_std = solvability_to_std(goal_list)
     return start_std == goal_std
 
 
-time_limit = 300
+#Tempo limite para os algoritmos
+time_limit = 300 
 
 
-def astar_manhattan():
+#Função para resolver o problema utilizando o algoritmo astar com a heuristica distancia de manhattan
+def astar_manhattan(): 
     open_list = []
     closed_list = []
     open_list.append(start)
@@ -173,7 +178,6 @@ def astar_manhattan():
     while(len(open_list) > 0):
         current_node = open_list[0]
         current_index = 0
-        # print(current_node.matrix)
         for index, item in enumerate(open_list):
             if item.f < current_node.f:
                 current_node = item
@@ -192,7 +196,6 @@ def astar_manhattan():
             for closed_child in closed_list:
                 if(np.array_equal(child.matrix, closed_child.matrix)):
                     continue
-            # print(child)
             child.manhattan()
             for open_child in open_list:
                 if(np.array_equal(open_child.matrix, child.matrix) and child.g > open_child.g):
@@ -200,12 +203,11 @@ def astar_manhattan():
             open_list.append(child)
         end_time_astar_manhattan = timer()
         if(end_time_astar_manhattan-start_time_astar_manhattan > time_limit):
-            # print("tempo limite excedido")
             return None
 
 
-
-def astar_misplaced():
+#Função para resolver o problema utilizando o algoritmo astar com a heuristica misplaced
+def astar_misplaced(): 
     open_list = []
     closed_list = []
     open_list.append(start)
@@ -213,7 +215,6 @@ def astar_misplaced():
     while(len(open_list) > 0):
         current_node = open_list[0]
         current_index = 0
-        # print(current_node.matrix)
         for index, item in enumerate(open_list):
             if item.f_mis < current_node.f_mis:
                 current_node = item
@@ -235,17 +236,14 @@ def astar_misplaced():
             for open_child in open_list:
                 if(np.array_equal(open_child.matrix, child.matrix) and child.g_mis > open_child.g_mis):
                     continue
-            # print(child.matrix)
             open_list.append(child)
         end_time_astar_misplaced = timer()
         if(end_time_astar_misplaced-start_time_astar_misplaced > time_limit):
-            # print("tempo limite excedido")
             return None
 
         
-
-
-def BFS():
+#Função para resolver o problema utilizando o algoritmo BFS
+def BFS(): 
     queue = []
     queue.append(start)
     queue.append(0)
@@ -269,11 +267,11 @@ def BFS():
                 visited_nodes.append(child)
         end_time_BFS = timer()
         if(end_time_BFS-start_time_BFS > time_limit):
-            # print("tempo limite excedido")
             return None
 
 
-def IDFS():
+#Função para resolver o problema utilizando o algoritmo IDFS
+def IDFS(): 
     depth = 1
     bottom_reached = False 
     global start_time_IDFS
@@ -286,14 +284,12 @@ def IDFS():
     return None
 
 
-def IDFSRec(node, current_depth, max_depth):
+#Função recursiva para auxilio do algoritmo IDFS
+def IDFSRec(node, current_depth, max_depth): 
     end_time_IDFS = timer()
     if(end_time_IDFS-start_time_IDFS > time_limit):
-        # print("tempo limite excedido")
         return None, True
     if node.isGoal():
-        # print("Solucão encontrada")
-        # print("Profundidade da solução:", current_depth)
         path = []
         while(node != None):
             path.insert(0, node)
@@ -311,7 +307,8 @@ def IDFSRec(node, current_depth, max_depth):
     return None, bottom_reached
 
 
-def DFS():
+#Função para resolver o problema utilizando o algoritmo DFS
+def DFS(): 
     stack = []
     stack.insert(0, 0)
     stack.insert(0, start)
@@ -335,13 +332,11 @@ def DFS():
                 visited_nodes.append(child)
         end_time_DFS = timer()
         if(end_time_DFS-start_time_DFS > time_limit):
-            # print("tempo limite excedido")
             return None
 
 
-
-
-def greedy_manhattan():
+#Função para resolver o problema utilizando o algoritmo greedy com a heuristica manhattan
+def greedy_manhattan(): 
     path = []
     visited_nodes = []
     current = start
@@ -367,10 +362,11 @@ def greedy_manhattan():
             path.append(current)
         end_time_greedy_manhattan = timer()
         if(end_time_greedy_manhattan-start_time_greedy_manhattan > time_limit):
-            # print("tempo limite excedido")
             return None
-        
-def greedy_misplaced():
+
+
+#Função para resolver o problema utilizando o algoritmo greedy com a heuristica misplaced
+def greedy_misplaced(): 
     path = []
     visited_nodes = []
     current = start
@@ -379,7 +375,6 @@ def greedy_misplaced():
     visited_nodes.append(current)
     start_time_greedy_misplaced = timer()
     while(1):
-        # print(current.matrix)
         if(current.isGoal()):
             return path
         children = current.genChildren()
@@ -397,16 +392,16 @@ def greedy_misplaced():
             path.append(current) 
         end_time_greedy_misplaced = timer()
         if(end_time_greedy_misplaced-start_time_greedy_misplaced > time_limit):
-            # print("tempo limite excedido")
             return None       
         
-
-
-
+#Nó inicial
 start = node()
-goal = node()
+
+#Nó final
+goal = node() 
     
-def get_input():
+#Função de input
+def get_input(): 
         global strategy, start_list, goal_list, start, goal, method
         start_list = list(map(int, input("Posição inicial: ").split()))
         goal_list = list(map(int, input("Posição final: ").split()))
@@ -416,24 +411,16 @@ def get_input():
             method = input("Escolha uma destas estratégias de busca (DFS, BFS, IDFS, astar-misplaced, astar-manhattan, greedy-misplaced, greedy-manhattan): ")
 
 
-def findGoal(num, goal):
+#Função para encontrar a posição final de uma certa peça
+def findGoal(num, goal): 
     for i in range(n):
         for j in range(n):
             if goal.matrix[i][j] == num:
                 return i, j
 
+
 get_input()
 valid = True
-
-# visited_nodes = []
-# visited_nodes.append(start)
-# print(goal.visited(visited_nodes))
-
-
-
-
-
-
 
 
 if (len(start_list) != n**2) or (len(goal_list) != n**2):
@@ -443,7 +430,9 @@ else:
         print("Configuração inicial não leva à configuração final proposta")
     else:
         path = []
-        tracemalloc.start()
+        #O tracemalloc retorna o máximo de espaço gasto durante a execução do progama
+        #Mas torna o programa mais lento, para o por a funcionar basta descomentar as linhas assinaladas com um '*'
+        # tracemalloc.start() #*
         start_time = timer()
         if method == "DFS":
             path = DFS()
@@ -471,7 +460,7 @@ else:
                 print(f"Tempo demorado: {round(end_time-start_time, 3)} segundos")
             else:
                 print("tempo limite excedido")
-            inst_mem, max_mem = tracemalloc.get_traced_memory()
-            print(f"Máximo de memória usada: {max_mem} bytes")
-    tracemalloc.stop()
+    #         inst_mem, max_mem = tracemalloc.get_traced_memory() #*
+    #         print(f"Máximo de memória usada: {max_mem} bytes") #*
+    # tracemalloc.stop() #*
 
